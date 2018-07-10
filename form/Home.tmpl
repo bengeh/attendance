@@ -1,0 +1,16 @@
+{{ define "Home" }}
+  {{ template "Header" }}
+    {{ template "Menu" }} 
+   <h2>We are so happy to see you.</h2>
+    <form method="POST" action="login">
+      <label> Name </label><input type="text" name="name" /><br />
+      <label> Password</label><input type="password" name="password"/><br />
+      <input type="submit" value="Login" />
+    </form>
+    <form method="POST" action="signup">
+      <label> Name </label><input type="text" name="username" /><br />
+      <label> Password</label><input type="password" name="password"/><br />
+      <input type="submit" value="Signup" />
+    </form>
+  {{ template "Footer" }}
+{{ end }}

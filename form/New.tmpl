@@ -1,12 +1,11 @@
 {{ define "New" }}
   {{ template "Header" }}
     {{ template "Menu" }} 
-   <h2>New Name and City</h2>  
     <form method="POST" action="insert">
-      <label> Name </label><input type="text" name="name" /><br />
-      <label> Additional Pax </label><input type="number" name="add_pax" /><br />
-      <label> Food Choice </label><input type="text" name="food_choice"/><br />
-      <input type="submit" value="Save user" />
+        <label> Hi {{.Value}}</label><input type="hidden" value={{.Value}} name="name" /><br />
+        <label> Total People coming</label><input type="number" name="add_pax" /><br />
+        <label> Food Choice for (Steak or Salmon)?</label><input type="text" name="food_choice"/><br />
+        <input type="submit" value="Save user" />
     </form>
   {{ template "Footer" }}
 {{ end }}
