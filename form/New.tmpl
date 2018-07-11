@@ -1,11 +1,41 @@
 {{ define "New" }}
   {{ template "Header" }}
-    {{ template "Menu" }} 
-    <form method="POST" action="insert">
-        <label> Hi {{.Value}}</label><input type="hidden" value={{.Value}} name="name" /><br />
-        <label> Total People coming</label><input type="number" name="add_pax" /><br />
-        <label> Food Choice for (Steak or Salmon)?</label><input type="text" name="food_choice"/><br />
-        <input type="submit" value="Save user" />
-    </form>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <div id="confirmplus">
+        <p>Do you have a plus one?</p>
+        <input type="radio" value="yes" name="yesplus">
+        <label for="yesplus">Yes</label>
+        <input type="radio" value="no" name="yesplus">
+        <label for="noplus">No</label>
+    </div>
+    <div id="choicesForm">
+    </div>
+    <script>
+        $('#confirmplus input').on('change', function(){
+            if ($('input[name=yesplus]:checked', '#confirmplus').val() == "yes"){
+                console.log("yes")
+                $('#form2').remove()
+                $('<form id="form1" method="POST" action="insert">' +
+                  '<label> Hi {{.Value}}</label><input type="hidden" value={{.Value}} name="name" /><br />' +
+                  '<label> Total People coming: 2</label><input id="total_pax" type="hidden" name="total_pax" value=2 /><br />' +
+                  '<label> Food Choice for (Steak or Salmon)?</label><input type="text" name="food_choice"/><br />' +
+                  '<label id="plusonelabel" for="plus_food_choice">Food Choice for +1 (Steak or Salmon)</label><input type="text" name="plus_food_choice"/>' +
+                  '<input type="submit" value="Save user" />' +
+                  '</form>'
+                  ).appendTo('#choicesForm')
+            }
+            else{
+                console.log("no")
+                $('#form1').remove()
+                $('<form id="form2" method="POST" action="insert">' +
+                  '<label> Hi {{.Value}}</label><input type="hidden" value={{.Value}} name="name" /><br />' +
+                  '<label> Total People coming: 1</label><input id="total_pax" type="hidden" name="total_pax" value=1 /><br />' +
+                  '<label> Food Choice for (Steak or Salmon)?</label><input type="text" name="food_choice"/><br />' +
+                  '<input type="submit" value="Save user" />' +
+                  '</form>'
+                  ).appendTo('#choicesForm')
+            }
+        });
+    </script>
   {{ template "Footer" }}
 {{ end }}

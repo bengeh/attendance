@@ -41,12 +41,13 @@ type Cookie struct {
     Raw      string
     Unparsed []string // Raw text of unparsed attribute-value pairs
 }
-    
+
 type Attendee struct {
     Id int 
     Name string
-    Additional_pax int
+    Total_pax int
     Food_choice string
+    Plus_food_choice sql.NullString
 }
 
 type Total struct{
@@ -70,7 +71,7 @@ func main(){
     http.HandleFunc("/bad", Bad)
     http.HandleFunc("/insert", Insert)
     http.HandleFunc("/thanks", Thanks)
-    http.ListenAndServe(":8080", nil)
+    http.ListenAndServe(":80", nil)
 }
 
 
@@ -126,7 +127,7 @@ func Login(w http.ResponseWriter, r *http.Request){
     fmt.Println("Inside login 5")
     // If we reach this point, that means the users password was correct, and that they are authorized
     // The default 200 status is sent
-    expiration := time.Now().Add(365 * 24 * time.Hour)
+    expiration := time.Now().Add(24 * time.Hour)
     cookie := http.Cookie{Name: "username", Value: username, Expires: expiration}
     http.SetCookie(w, &cookie)
     if username == "aaa"{
@@ -161,17 +162,15 @@ func Insert(w http.ResponseWriter, r *http.Request) {
     db := dbConn()
     if r.Method == "POST" {
         name := r.FormValue("name")
-        add_pax := r.FormValue("add_pax")
+        total_pax := r.FormValue("total_pax")
         food_choice := r.FormValue("food_choice")
-        fmt.Print(name)
-        fmt.Print(add_pax)
-        fmt.Print(food_choice)
-        insForm, err := db.Prepare("INSERT INTO test_blog.wed_attendance(name, additional_pax, food_choice) VALUES(?,?,?)")
+        plus_food_choice := r.FormValue("plus_food_choice")
+        insForm, err := db.Prepare("INSERT INTO test_blog.wed_attendance(name, total_pax, food_choice, plus_food_choice) VALUES(?,?,?,?)")
         if err != nil {
             panic(err.Error())
         }
-        insForm.Exec(name, add_pax, food_choice)
-        fmt.Println("INSERT: Name: " + name + " | Additional pax: " + add_pax + " | Food choice: " + food_choice)
+        insForm.Exec(name, total_pax, food_choice, plus_food_choice)
+        fmt.Println("INSERT: Name: " + name + " | Total pax: " + total_pax + " | Food choice: " + food_choice + " | Food choice for plus one: " + plus_food_choice)
         if name == "aaa"{
             http.Redirect(w, r, "show", 301)
         }else{
@@ -179,6 +178,10 @@ func Insert(w http.ResponseWriter, r *http.Request) {
         }
     }
     defer db.Close()
+}
+
+func ToNullString(s string) sql.NullString {
+    return sql.NullString{String: s, Valid : s != ""}
 }
 
 func Show(w http.ResponseWriter, r *http.Request){
@@ -191,30 +194,19 @@ func Show(w http.ResponseWriter, r *http.Request){
     attend := Total{}
     res := []Total{}
     for rows.Next(){
-        var (
-            id int
-            name string
-            additional_pax int
-            food_choice string
-        )
         
-        err = rows.Scan(&id, &name, &additional_pax, &food_choice)
+        err = rows.Scan(&attend.Id, &attend.Name, &attend.Total_pax, &attend.Food_choice, &attend.Plus_food_choice)
         if err != nil{
             panic(err)
         }
-        attend.Id = id
-        attend.Name = name
-        attend.Additional_pax = additional_pax
-        attend.Food_choice = food_choice
-        
-        if attend.Additional_pax == 1{
-            count += 1
-            attend.Count = count
-        }
-        if attend.Food_choice == "Steak"{
+        count += attend.Total_pax
+        attend.Count = count
+        fmt.Print("hihihi ", attend.Plus_food_choice.String)
+        if attend.Food_choice == "Steak" || attend.Plus_food_choice.String == "Steak"{
             steak_count += 1
             attend.Steak_count = steak_count
-        }else if attend.Food_choice == "Salmon"{
+        }
+        if attend.Food_choice == "Salmon" || attend.Plus_food_choice.String == "Salmon"{
             salmon_count += 1
             attend.Salmon_count = salmon_count
         }

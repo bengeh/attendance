@@ -1,13 +1,13 @@
 {{ define "Show" }}
   {{ template "Header" }}
-    {{ template "Menu" }}
         {{ range . }}
         <h1> Total Additional Pax: {{.Count}} </h1>
         <h1> Total Steak: {{.Steak_count}} </h1>
         <h1> Total Salmon: {{.Salmon_count}} </h1>
         <h2> Name {{ .Name }} </h2>
-          <p>Additional Pax: {{ .Additional_pax }}</p>
+          <p>Total Pax: {{ .Total_pax }}</p>
           <p>Food Choice: {{ .Food_choice }}</p>
+          <p>Food Choice for plus one: {{.Plus_food_choice.String}}</p>
         {{end}}
   {{ template "Footer" }}
 {{ end }}
